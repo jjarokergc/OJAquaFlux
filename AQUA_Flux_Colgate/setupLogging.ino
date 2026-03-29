@@ -77,35 +77,38 @@ void setupLogging(void)
 #if USE_DATALOGGER
 
   DEBUG_PRINTLN(F("DEBUG - Data Logging and RTC enabled"));
-  // Connect to RTC
-  //  #ifndef ESP8266 //    -------------------OJ COMMENTED THIS OUT
-  //   while (!Serial); // Wait for serial port to connect. Needed for native USB.
-  // #endif
 
+  // Initialize RTC
   if (!rtc.begin())
-  {
     error("Couldn't find RTC");
-  }
 
+  // Check RTC State
   if (!rtc.initialized() || rtc.lostPower())
   {
     LOG_STREAM.println(F("RTC is NOT initialized. Time Must Be Set"));
     setRtcDate();
   }
 
-  rtc.start(); // start the RTC
+  // 24-hr Bug Workaround to prevent 24:01 error
+  setRtcTo24HrMode();
 
-  // Validate the RTC date before opening any log file.
+  // Validate the RTC date and time
   // An implausible date (such as in the past) indicates a problem
   // Request operator enter a valid date and then reboot
+  rtc.start(); // start the RTC
+
+  DateTime rtcNow = rtc.now();
+  if (!isRtcDateValid(rtcNow))
   {
-    DateTime rtcNow = rtc.now();
-    if (!isRtcDateValid(rtcNow))
-    {
-      LOG_STREAM.println(F("The RTC has an implausible date. Reset date and reboot."));
-      setRtcDate();
-      error("Reboot to confirm RTC will maintain the correct date.");
-    }
+    char buf[100];
+    snprintf(buf, sizeof(buf),
+             "The RTC has an implausible date: %04d/%02d/%02d %02d:%02d:%02d. Please reset date and reboot",
+             rtcNow.year(), rtcNow.month(), rtcNow.day(),
+             rtcNow.hour(), rtcNow.minute(), rtcNow.second());
+
+    LOG_STREAM.println(buf);
+    setRtcDate();
+    error("Reboot to confirm RTC will maintain the correct date.");
   }
 
   // int countdownMS = Watchdog.enable(8000); // enable watchdog with timer of 8 seconds (max for Arduino Uno) - if the Arduino halts for more than 8 seconds, the watchdog will restart the sketch

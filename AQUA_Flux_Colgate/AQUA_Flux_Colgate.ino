@@ -106,6 +106,7 @@ float steps = 1024; // steps for ADC
 // Datalogger Configuration
 // -----------------------------------------------------------------------------
 #if USE_DATALOGGER
+#define RTC_ADDRESS 0x68
 uint8_t currentLogDay = 0; // RTC day of the current log file; rotate when it changes
 RTC_PCF8523 rtc;
 File logfile; // Set-up the logging file

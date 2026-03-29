@@ -26,7 +26,7 @@
 
 #if USE_DATALOGGER
 
-#define SET_RTC_INPUT_TIMEOUT_MS 60000UL // seconds to enter each field before retry
+#define SET_RTC_INPUT_TIMEOUT_MS 60000UL // 60-second input timeout per field, value in ms
 #define SET_RTC_MAX_ATTEMPTS 3           // max invalid attempts per field before abort
 #define SET_RTC_VERIFY_DELTA_S 60        // maximum allowed difference after readback (s)
 #define SET_RTC_SETTLE_MS 2000           // delay after rtc.adjust() before readback
@@ -198,4 +198,63 @@ void setRtcDate()
   LOG_STREAM.println(F("----------------------------"));
 }
 
+void setRtcTo24HrMode()
+{
+  // Check if the RTC is configured for 24 hour mode
+  // Bug workaround for the situation where RTC fails to
+  // rollover after midnight and reports invalid time like 24:01
+  Wire.beginTransmission(RTC_ADDRESS); // PCF8523 I2C address
+  Wire.write(0x00);                    // CONTROL_1 register
+  uint8_t err = Wire.endTransmission();
+  if (err != 0)
+  {
+    LOG_STREAM.print(F("RTC Data Logger error when trying to read CONTROL_1 register: "));
+    LOG_STREAM.println(err);
+    error("Could not transmit command to read the CONTROL_1 register of RTC");
+  }
+
+  // (possibly unnecessary) delay to allow RTC to respond
+  delay(20);
+
+  uint8_t received = Wire.requestFrom(RTC_ADDRESS, (uint8_t)1);
+  // Confirm we got 1 byte back
+  if (received != 1)
+  {
+    LOG_STREAM.print(F("ERROR: Expected 1 byte, got "));
+    LOG_STREAM.println(received);
+    error("Could not read the CONTROL_1 register of RTC");
+  }
+
+  uint8_t control1 = Wire.read();
+
+  bool is24HourMode = (control1 & (1 << 3)) == 0; // bit 3 = 0 → 24-hour mode
+
+  // Force PCF8523 into 24-hour mode (clear bit 3 in CONTROL_1 register)
+  if (!is24HourMode)
+  {
+    LOG_STREAM.print(F("RTC Data Logger is not in 24-hour mode. Setting to 24hr mode..."));
+    // Clear 12_24 bit → 24 - hour mode
+    uint8_t bit = (1 << 3);       // 00001000  — isolate bit 3
+    uint8_t mask = (uint8_t)~bit; // 11110111  — invert to create a clear-mask
+    control1 = control1 & mask;   // force bit 3 to 0, preserve all others
+
+    Wire.beginTransmission(RTC_ADDRESS);
+    Wire.write(0x00);
+    Wire.write(control1);
+    err = Wire.endTransmission();
+    if (err != 0)
+    {
+      LOG_STREAM.print(F("Could not write CONTROL_1 register for 24hr mode. Error: "));
+      LOG_STREAM.println(err);
+      error("Could not transmit command to set the CONTROL_1 register of RTC to 24hr mode");
+    }
+    LOG_STREAM.println(F("Done"));
+  }
+  else
+  {
+    DEBUG_PRINTLN(F("RTC is in 24 hour mode"));
+  }
+
+  return;
+}
 #endif // USE_DATALOGGER
