@@ -302,18 +302,13 @@ static bool ensureK30Address()
   LOG_STREAM.print(F("Power cycling K30 to apply address change..."));
   k30RelayOff();
   delay(K30_POWER_DOWN_MS);
-  k30RelayOn(0); // no extra startup delay — Arduino is already stable
+  LOG_STREAM.println(F("waiting..."));
+  k30RelayOn();
   LOG_STREAM.println(F("done"));
 
-  DEBUG_PRINTLN(F("Scanning I2C Bus"));
-  scanI2cBus();
+  uint8_t new = readK30I2CAddress();
 
-  // Use K30_I2C_ADDR directly — 0x7F after a write/reboot returns a stale
-  // Write EEPROM response (0x31) instead of a fresh Read RAM response.
-  uint8_t addrBuf[2] = {0};
-  k30ReadRAM(K30_I2C_ADDR, 0x0020, addrBuf);
-  cur = addrBuf[1]; // address is in LSB
-  if (cur != K30_I2C_ADDR)
+  if (new != K30_I2C_ADDR)
   { // ERROR - Address not set
     snprintf(k30errbuf, sizeof(k30errbuf),
              "K30 address not set after power cycle (got 0x%02X)", cur);

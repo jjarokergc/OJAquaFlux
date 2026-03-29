@@ -111,7 +111,7 @@ static void setLogInterval()
         LOG_STREAM.print(minS);
         LOG_STREAM.print(F("-"));
         LOG_STREAM.print(maxS);
-        LOG_STREAM.println(F(" s. Interval unchanged."));
+        LOG_STREAM.println(F("s. Interval unchanged."));
         return;
     }
     LOG_INTERVAL = val * 1000UL;
