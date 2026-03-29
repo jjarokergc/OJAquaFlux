@@ -191,24 +191,26 @@ ChamberActuator chamberActuator; // state machine instance
 ///////////////////////////////////////////////////////////////////
 void setup(void)
 {
-  setupLogging();           // Initialize XBee or Serial communication, RTC, Datalogger
-  printConfig();            // Shows XBee commands
+  setupLogging();           // Initialize XBee or Serial communication
+  printConfig();            // Shows build configuration and XBee commands
   activateK30();            // Delayed K30 activation using relay
-  setupI2c();               // Turns on I2C and puts it into a known starting state
+  setupI2c();               // Initialize Wire and recover I2C bus to known state
+  setupRtc();               // Initialize RTC (must run after setupI2c)
+  setupSdCard();            // Initialize SD card and open log file (must run after setupRtc)
   setupK30();               // Checks K30 for errors and non-conflicting I2C address
-  scanI2cBus();             // Scan and report all I2C devices
   setupSht85();             // Start temp/humidity sensor
 #if USE_ACTUATOR
   chamberActuator.begin();  // Put chamber into known state (down)
 #else
   DEBUG_PRINTLN(F("DEBUG - Linear actuator disabled"));
 #endif
+  scanI2cBus();             // Scan and report all I2C devices
 
 #if USE_XBEE
   // Drain any bytes that arrived on the XBee RX line during setup.
   while (XBee.available()) XBee.read();
 #endif
-  }
+}
 
 ///////////////////////////////////////////////////////////////////
 // Start Sampling Loop

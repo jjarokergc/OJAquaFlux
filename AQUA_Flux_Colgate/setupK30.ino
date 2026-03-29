@@ -299,24 +299,24 @@ static bool ensureK30Address()
   DEBUG_PRINTLN(F("Done"));
 
 #if HAS_K30_RELAY
-  LOG_STREAM.print(F("Power cycling K30 to apply address change..."));
+  LOG_STREAM.print(F("Power cycling K30 to apply address change...Off"));
   k30RelayOff();
   delay(K30_POWER_DOWN_MS);
-  LOG_STREAM.println(F("waiting..."));
-  k30RelayOn();
+  LOG_STREAM.println(F("On...waiting for K30 to stabilize..."));
+  k30RelayOn(); // Wait to allow the K30 to stabilize after the power cycle
   LOG_STREAM.println(F("done"));
 
-  uint8_t new = readK30I2CAddress();
+  uint8_t newI2CAddress = readK30I2CAddress();
 
-  if (new != K30_I2C_ADDR)
+  if (newI2CAddress != K30_I2C_ADDR)
   { // ERROR - Address not set
     snprintf(k30errbuf, sizeof(k30errbuf),
-             "K30 address not set after power cycle (got 0x%02X)", cur);
+             "K30 address not set after power cycle (got 0x%02X)", newI2CAddress);
     LOG_STREAM.println(k30errbuf);
     return false;
   }
   LOG_STREAM.print(F("K30 I2C address set to 0x"));
-  LOG_STREAM.println(cur, HEX);
+  LOG_STREAM.println(newI2CAddress, HEX);
   return true;
 #else
   LOG_STREAM.println(F("Power cycle the K30 manually to apply the address change,"));
