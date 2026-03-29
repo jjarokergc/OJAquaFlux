@@ -106,11 +106,11 @@ void setupRtc(void)
   DateTime rtcNow = rtc.now();
   if (!isRtcDateValid(rtcNow))
   {
-    char buf[100];
-    snprintf(buf, sizeof(buf),
-             "The RTC has an implausible date: %04d/%02d/%02d %02d:%02d:%02d. Please reset date and reboot",
+    char buf[24]; // "YYYY/MM/DD HH:MM:SS" + null
+    snprintf(buf, sizeof(buf), "%04d/%02d/%02d %02d:%02d:%02d",
              rtcNow.year(), rtcNow.month(), rtcNow.day(),
              rtcNow.hour(), rtcNow.minute(), rtcNow.second());
+    LOG_STREAM.print(F("The RTC has an implausible date: "));
     LOG_STREAM.println(buf);
     setRtcDate();
     error("Reboot to confirm RTC will maintain the correct date.");

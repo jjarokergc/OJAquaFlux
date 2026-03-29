@@ -12,6 +12,9 @@ void error(const char *str)
   LOG_STREAM.println(str);
   LOG_STREAM.println(F("Execution halted. Please reboot manually."));
   LOG_STREAM.flush();
+#if USE_DATALOGGER
+  if (logfile) logfile.close(); // flush and close only if SD card was successfully opened
+#endif
   while (1)
     ; // Halt
 }
