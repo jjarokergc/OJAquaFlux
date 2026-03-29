@@ -33,8 +33,10 @@ The following software and hardware modifications were made to the original desi
 - **Date-Based Log File Rotation**: The SD card logger writes to a file named `YYYYMMDD.CSV`, derived from the PCF8523 RTC. A new file is opened automatically at midnight; a same-day reboot appends to the existing file without duplicating the CSV header. The sketch halts with an error message if the SD card or file cannot be opened.
 - **Non-Blocking Chamber Actuator State Machine** (`chamber.ino`): The linear actuator is now controlled by a `ChamberActuator` class implementing a five-state machine (`UNKNOWN > CLOSING > CLOSED > OPENING > OPEN`). Timing is driven by named constants (`CHAMBER_CLOSED_MS`, `CHAMBER_OPEN_MS`, `CHAMBER_TRANSITION_MS`) rather than magic numbers. The previous design blocked the main loop for 24 s (6 × `delay(4000)`) during each transition; the new design is fully non-blocking. During a transition the main loop skips sensor reads and delays but continues processing XBee commands, printing a `.` once per second to show the program is still running.
 - **Startup Configuration Report** (`printConfig.ino`): A `printConfig()` function called from `setup()` prints the enabled/disabled status of all subsystems and the Arduino pin assignments to `LOG_STREAM`, making it easy to verify the build configuration in the field.
+- **Realtime Clock 12-24**: The RTC is set to 24-hour mode by wring '0' to CONTROL_1 register.  See page 9 of RTC datasheet.
 
 ## Technical References
 - K30 CO₂ Sensor Datasheet: https://rmtplusstoragesenseair.blob.core.windows.net/docs/Dev/publicerat/TDE4700.pdf
 - K30 CO₂ Sensor Product Specification: https://rmtplusstoragesenseair.blob.core.windows.net/docs/publicerat/PSP110.pdf
 - Renogy Wanderer Solar Panel: https://www.renogy.com/products/wanderer-10a-pwm-charge-controller?_pos=1&_psq=wande&_ss=e&_v=1.0
+- PCF8523 Real Time Clock Datasheet: https://www.nxp.com/docs/en/data-sheet/PCF8523.pdf

@@ -75,7 +75,8 @@ SoftwareSerial XBee(2, 3); // Arduino RX, TX (XBee Dout, Din)
 // WARNING: Changed 0x68 to 0x69 to avoid conflict with the data logger RTC
 #if USE_K30
 #define K30_I2C_ADDR 0x69
-bool miscalibratedK30 = false;
+bool miscalibratedK30 = false;          // K30 has a status register that is used to set this flag
+#define K30_WARN_IF_MISCALIBRATED false // Whether to indicate miscalibration in the log files.
 #endif
 
 // -----------------------------------------------------------------------------
@@ -190,24 +191,26 @@ ChamberActuator chamberActuator; // state machine instance
 ///////////////////////////////////////////////////////////////////
 void setup(void)
 {
-  setupLogging();           // Initialize XBee or Serial communication, RTC, Datalogger
-  printConfig();            // Shows XBee commands
+  setupLogging();           // Initialize XBee or Serial communication
+  printConfig();            // Shows build configuration and XBee commands
   activateK30();            // Delayed K30 activation using relay
-  setupI2c();               // Turns on I2C and puts it into a known starting state
+  setupI2c();               // Initialize Wire and recover I2C bus to known state
+  setupRtc();               // Initialize RTC (must run after setupI2c)
+  setupSdCard();            // Initialize SD card and open log file (must run after setupRtc)
   setupK30();               // Checks K30 for errors and non-conflicting I2C address
-  scanI2cBus();             // Scan and report all I2C devices
   setupSht85();             // Start temp/humidity sensor
 #if USE_ACTUATOR
   chamberActuator.begin();  // Put chamber into known state (down)
 #else
   DEBUG_PRINTLN(F("DEBUG - Linear actuator disabled"));
 #endif
+  scanI2cBus();             // Scan and report all I2C devices
 
 #if USE_XBEE
   // Drain any bytes that arrived on the XBee RX line during setup.
   while (XBee.available()) XBee.read();
 #endif
-  }
+}
 
 ///////////////////////////////////////////////////////////////////
 // Start Sampling Loop
@@ -305,12 +308,12 @@ void loop()
 
   LOG_STREAM.print(", ");
   LOG_STREAM.print(co2Value);
-  if (miscalibratedK30) LOG_STREAM.print(F("**"));
+  if (K30_WARN_IF_MISCALIBRATED && miscalibratedK30) LOG_STREAM.print(F("**"));
 
 #if USE_DATALOGGER
   logfile.print(", ");
   logfile.print(co2Value);
-  if (miscalibratedK30) logfile.print(F("**"));
+  if (K30_WARN_IF_MISCALIBRATED && miscalibratedK30) logfile.print(F("**"));
 
 #endif
 

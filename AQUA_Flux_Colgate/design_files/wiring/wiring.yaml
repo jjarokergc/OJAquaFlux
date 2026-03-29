@@ -1,39 +1,64 @@
 # Color Code: https://en.wikipedia.org/wiki/Electronic_color_code#Color_band_system
 ---
+options:
+  mini_bom_mode: false
+  
 connectors:
   K30:
     type: Screw Terminal
-    pinlabels: [DVCC, G0, G+, I2C_SLC, I2C_SDA]
+    pinlabels: [DVCC, G0, G+, I2C_SCL, I2C_SDA]
+    notes: "CO2 sensor"
+  MOUNTING:
+    pinlabels: [G0, G+, LV1, HV1, LV2, HV2, LV, HV]
+    notes: "Mounting PCB for CO2 senor, Level Shifter"
   LEVELSHIFTER:
     type: Screw Terminal
-    pinlabels: [LV1, HV1, LV, HV]
+    pinlabels: [LV1, HV1, LV2, HV2, LV, HV]
   CHAMBER_PCB:
     type: Screw Terminal
-    pinlabels: [5VDC, SDA, SCL]
-  ARDUINO:
-    type: Hat
-    pinlabels: [SDA, SCL, RELAY_CONTROL, 5VDC, GND]
+    pinlabels: [G0, G+, I2C_SCL, I2C_SDA, 5VDC]
   K30_RELAY:
     type: Screw Terminal
     pinlabels: [5VDC, GND, SIGNAL, 'NO', COM, NC]
+  POWER:
+    pinlabels: [GND, 12VDC, 5VDC]
 
 cables:
   W1:
-    colors: [YE, GN, RD, OG, BU]
+    colors: [RD, BK, RD, YE, GN]
+    show_wirecount: false
+    show_name: false
+    show_wirenumbers: false
   W2:
-    colors: [YE, GN, RD, OG, BU]
+    colors: [YE, YE, GN, GN, RD, RD]
+    show_wirecount: false
+    show_name: false
+    show_wirenumbers: false
+  W3:
+    colors: [BK, RD, YE, GN, RD]
+    show_wirecount: false
+    show_name: false
+    show_wirenumbers: false
+  W4:
+    colors: [RD]
+    show_wirecount: false
+    show_name: false
+    show_wirenumbers: false
 
 connections:
   -
-    - K30: [1]
-    - W1: [1]
-    - LEVELSHIFTER: [3]
+    - K30: [1,2,3,4,5]
+    - W1: [1,2,3,4,5]
+    - MOUNTING: [7,1,2,3,5]
   -
-    - LEVELSHIFTER: [4]
-    - W2: [1]
-    - CHAMBER_PCB: [1]
+    - LEVELSHIFTER: [1,2,3,4,5,6]
+    - W2: [1,2,3,4,5,6]
+    - MOUNTING: [3,4,5,6,7,8]
+  - 
+    - MOUNTING: [1, 2, 4, 6, 8]
+    - W3: [1,2,3,4,5]
+    - CHAMBER_PCB: [1, 2, 3, 4, 5]
   -
-    - K30: [1]
-    - W1: [3]
     - K30_RELAY: [4]
-    
+    - W4: [1]
+    - CHAMBER_PCB: [2]

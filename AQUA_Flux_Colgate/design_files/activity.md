@@ -1,6 +1,6 @@
 # Activity Diagram
 
-## Startup
+## Setup
 ```mermaid
 flowchart TD
     START([Power On]) --> SETUP
@@ -8,17 +8,19 @@ flowchart TD
     subgraph SETUP["setup()"]
         S1[Init XBee / Serial logging] --> S2[Print config]
         S2 --> S3[Activate K30 with relay delay]
-        S3 --> S4[Init I2C bus]
-        S4 --> S5[Verify K30 address]
-        S5 --> S6[Scan I2C bus]
-        S6 --> S7[Init SHT85]
-        S7 --> S8[chamberActuator.begin\nRetract actuator → enter CLOSING]
-        S8 --> S9[Drain XBee RX buffer]
+        S3 --> S4[Init I2C bus at 50 kHz]
+        S4 --> S5[Init RTC]
+        S5 --> S6[Init SD card and open log file]
+        S6 --> S7[Verify K30 address + error status]
+        S7 --> S8[Init SHT85]
+        S8 --> S9[chamberActuator.begin\nRetract actuator → enter CLOSING]
+        S9 --> S10[Scan I2C bus]
+        S10 --> S11[Drain XBee RX buffer]
     end
 
 ```
 
-## Operation
+## Loop
 ```mermaid
 flowchart TD
 
@@ -55,7 +57,7 @@ flowchart TD
 
 ```
 
-## Chamber
+## Chamber State Machine
 
 ```mermaid
 flowchart TD

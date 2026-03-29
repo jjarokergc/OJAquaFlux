@@ -107,11 +107,11 @@ static void setLogInterval()
     unsigned long val = (unsigned long)atoi(buf);
     if (val < minS || val > maxS)
     {
-        LOG_STREAM.print(F("Invalid. Must be between"));
+        LOG_STREAM.print(F("Invalid. Must be between "));
         LOG_STREAM.print(minS);
         LOG_STREAM.print(F("-"));
         LOG_STREAM.print(maxS);
-        LOG_STREAM.println(F(" s. Interval unchanged."));
+        LOG_STREAM.println(F("s. Interval unchanged."));
         return;
     }
     LOG_INTERVAL = val * 1000UL;
