@@ -44,12 +44,12 @@ void openNextLogfile()
     // Write header only once per file; skip on same-day reboot (append mode)
     logfile.print(F("millis, stampunix, datetime, K30_CO2"));
 #if USE_K30
-    if (miscalibratedK30)
+    if (K30_WARN_IF_MISCALIBRATED && miscalibratedK30)
       logfile.print(F("(**)"));
 #endif
     logfile.println(F(", CH4smV, Vbat, SHT_RH, SHT_temp, AQUA_Flux1 "));
 #if USE_K30
-    if (miscalibratedK30)
+    if (K30_WARN_IF_MISCALIBRATED && miscalibratedK30)
       logfile.println(F("** The K30 is miscalibrated, according to Error Status."));
 #endif
     logfile.flush(); // persist header immediately — first data row may not arrive for >30 s
