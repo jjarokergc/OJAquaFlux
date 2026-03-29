@@ -163,12 +163,12 @@ bool xbeeSuspended = false;
 // caller must add a semicolon and the else attaches correctly.
 // -----------------------------------------------------------------------------
 #if DEBUG
-#define DEBUG_PRINT(x) LOG_STREAM.print(x)
-#define DEBUG_PRINTLN(x) LOG_STREAM.println(x)
+#define DEBUG_PRINT(...) LOG_STREAM.print(__VA_ARGS__)
+#define DEBUG_PRINTLN(...) LOG_STREAM.println(__VA_ARGS__)
 #else
 // clang-format off
-#define DEBUG_PRINT(x)   do {} while (0)
-#define DEBUG_PRINTLN(x) do {} while (0)
+#define DEBUG_PRINT(...)   do {} while (0)
+#define DEBUG_PRINTLN(...) do {} while (0)
 #endif
 
 // -----------------------------------------------------------------------------

@@ -66,18 +66,18 @@ static void k30ReadRAM(uint8_t i2cAddr, uint16_t ramAddr,
     while (Wire.available())
     {
       byte c = Wire.read();
-      DEBUG_PRINT(String(c, HEX));
+      DEBUG_PRINT(c, HEX);
       DEBUG_PRINT(F("..."));
     }
     DEBUG_PRINTLN(F("DONE"));
 
     DEBUG_PRINT(F("Sending K30 Read RAM(0x"));
-    DEBUG_PRINT(String(i2cAddr, HEX));
+    DEBUG_PRINT(i2cAddr, HEX);
     DEBUG_PRINT(F("): { "));
     Wire.beginTransmission(i2cAddr);
     for (uint8_t i = 0; i < sizeof(cmd); i++)
     {
-      DEBUG_PRINT(String(cmd[i], HEX));
+      DEBUG_PRINT(cmd[i], HEX);
       DEBUG_PRINT(F(" "));
       Wire.write(cmd[i]);
     }
@@ -119,7 +119,7 @@ static void k30ReadRAM(uint8_t i2cAddr, uint16_t ramAddr,
     for (uint8_t i = 0; i < expected; i++)
     {
       buf[i] = Wire.read();
-      DEBUG_PRINT(String(buf[i], HEX));
+      DEBUG_PRINT(buf[i], HEX);
       DEBUG_PRINT(F(" "));
       if (i < expected - 1) // accumulate all bytes except the checksum byte itself
         checksum += buf[i];
@@ -131,7 +131,7 @@ static void k30ReadRAM(uint8_t i2cAddr, uint16_t ramAddr,
     while (Wire.available())
     {
       byte c = Wire.read();
-      DEBUG_PRINT(String(c, HEX));
+      DEBUG_PRINT(c, HEX);
       DEBUG_PRINT(F("..."));
     }
     DEBUG_PRINTLN(F("DONE"));
@@ -139,7 +139,7 @@ static void k30ReadRAM(uint8_t i2cAddr, uint16_t ramAddr,
     if (buf[0] != 0x21)
     {
       DEBUG_PRINT(F("K30 readRAM unexpected status 0x"));
-      DEBUG_PRINT(String(buf[0], HEX));
+      DEBUG_PRINT(buf[0], HEX);
       DEBUG_PRINTLN(F(", retrying..."));
       delay(K30_READ_RAM_RETRY_DELAY_MS);
       continue; // retry — K30 may return stale EEPROM response (0x31) after address change
@@ -194,7 +194,7 @@ static void k30WriteEEPROM(uint8_t i2cAddr, uint16_t eepromAddr, uint8_t val)
   while (Wire.available())
   {
     byte c = Wire.read();
-    DEBUG_PRINT(String(c, HEX));
+    DEBUG_PRINT(c, HEX);
     DEBUG_PRINT(F("..."));
   }
   DEBUG_PRINTLN(F("DONE"));
@@ -203,7 +203,7 @@ static void k30WriteEEPROM(uint8_t i2cAddr, uint16_t eepromAddr, uint8_t val)
   for (uint8_t i = 0; i < sizeof(cmd); i++)
   {
     Wire.write(cmd[i]);
-    DEBUG_PRINT(String(cmd[i], HEX));
+    DEBUG_PRINT(cmd[i], HEX);
     DEBUG_PRINT(F(" "));
   }
   DEBUG_PRINTLN(F("}"));
@@ -235,16 +235,16 @@ static void k30WriteEEPROM(uint8_t i2cAddr, uint16_t eepromAddr, uint8_t val)
   byte status = Wire.read();
   byte respCsum = Wire.read();
   DEBUG_PRINT(F("Write EEPROM Response: status=0x"));
-  DEBUG_PRINT(String(status, HEX));
+  DEBUG_PRINT(status, HEX);
   DEBUG_PRINT(F(" checksum=0x"));
-  DEBUG_PRINTLN(String(respCsum, HEX));
+  DEBUG_PRINTLN(respCsum, HEX);
 
   // Check for stray data after reading expected bytes
   DEBUG_PRINT(F("Checking for extra data on I2C Bus..."));
   while (Wire.available())
   {
     byte c = Wire.read();
-    DEBUG_PRINT(String(c, HEX));
+    DEBUG_PRINT(c, HEX);
     DEBUG_PRINT(F("..."));
   }
   DEBUG_PRINTLN(F("DONE"));
