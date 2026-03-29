@@ -21,6 +21,7 @@
 #define MAX_RETRIES 3 // Retries before resetting I2C bus
 
 // Returns CO2 in ppm as int16_t, or 0 on failure.
+#if USE_K30
 int16_t readK30_CO2_withRetry()
 {
   for (int retry = 0; retry < MAX_RETRIES; retry++)
@@ -153,3 +154,4 @@ int16_t readK30_CO2_withRetry()
   }
   return 0; // indicate failure after retries
 }
+#endif
