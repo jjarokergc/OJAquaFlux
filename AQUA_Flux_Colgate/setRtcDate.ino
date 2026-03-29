@@ -64,13 +64,31 @@ static bool rtcAllDigits(const char *buf, uint8_t len)
 
 // Returns true if dt holds a plausible deployment date and time.
 // Bounds: year 2026–2040 (matches operator entry validation in setRtcDate()).
-// A false result indicates the RTC was never set, lost its battery, or returned
-// corrupt data over I2C.
 bool isRtcDateValid(const DateTime &dt)
 {
-  return dt.year() >= 2026 && dt.year() <= 2040 && dt.month() >= 1 && dt.month() <= 12 && dt.day() >= 1 && dt.day() <= 31 && dt.hour() <= 23 && dt.minute() <= 59 && dt.second() <= 59;
-}
+  if (dt.year() < 2026 || dt.year() > 2040)
+    return false;
+  if (dt.month() < 1 || dt.month() > 12)
+    return false;
+  if (dt.day() < 1 || dt.day() > 31)
+    return false;
+  if (dt.hour() > 23 || dt.minute() > 59 || dt.second() > 59)
+    return false;
 
+  // Simple days-in-month (ignore leap years for simplicity, or add full logic)
+  static const uint8_t daysInMonth[13] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  if (dt.day() > daysInMonth[dt.month()])
+    return false;
+
+  // Reject Feb 29 in non-leap years
+  if (dt.month() == 2 && dt.day() == 29)
+  {
+    uint16_t y = dt.year();
+    if (!((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)))
+      return false;
+  }
+  return true;
+}
 // Prompt the operator for a date and time, write to RTC, and verify.
 // Returns without calling error() if the operator cancels or exceeds the
 // attempt limit. Calls error() only if the RTC write verification fails.
