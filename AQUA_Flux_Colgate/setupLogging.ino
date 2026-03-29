@@ -13,5 +13,7 @@ void setupLogging(void)
   XBee.begin(XBEE_BAUD_RATE);
 #else
   Serial.begin(SERIAL_BAUD_RATE);
+  unsigned long t = millis();
+  while (!Serial && millis() - t < 3000UL); // wait up to 3 s for USB CDC (R4 native USB)
 #endif
 }
